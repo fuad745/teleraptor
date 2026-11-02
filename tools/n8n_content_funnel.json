@@ -1,0 +1,118 @@
+{
+  "name": "Automated Content & Telegram Funnel",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "days",
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "id": "1",
+      "name": "Daily Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        220,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
+        "method": "POST",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "key",
+              "value": "YOUR_GEMINI_API_KEY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={\n  \"contents\": [{\n    \"parts\": [{\n      \"text\": \"You are an expert tech curator. Generate 1 viral Android hidden gem app or 1 remote tech job. Respond ONLY with valid JSON with keys: type ('app' or 'job'), name, category_or_company, rating_or_salary, highlights (array of 3 short killer features/perks), telegram_caption (HTML formatted full review/details), button_text, button_url.\"\n    }]\n  }],\n  \"generationConfig\": {\n    \"responseMimeType\": \"application/json\"\n  }\n}"
+      },
+      "id": "2",
+      "name": "Gemini AI Script Generator",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        460,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "command": "=python3 /home/kichner/content-funnel/generate_card.py"
+      },
+      "id": "3",
+      "name": "Generate Visual Card",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [
+        700,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "sendPhoto",
+        "chatId": "@YOUR_TELEGRAM_CHANNEL",
+        "file": "/home/kichner/content-funnel/output/app_card.png",
+        "caption": "={{ $json.telegram_caption }}",
+        "additionalFields": {
+          "parse_mode": "HTML"
+        }
+      },
+      "id": "4",
+      "name": "Post to Telegram Channel",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        940,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Daily Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Gemini AI Script Generator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini AI Script Generator": {
+      "main": [
+        [
+          {
+            "node": "Generate Visual Card",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Visual Card": {
+      "main": [
+        [
+          {
+            "node": "Post to Telegram Channel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

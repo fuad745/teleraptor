@@ -1,0 +1,7 @@
+output/
+__pycache__/
+*.pyc
+config.php
+deploy.log
+.DS_Store
+*.tmp
