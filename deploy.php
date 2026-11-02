@@ -30,13 +30,20 @@ if (!$is_admin && $provided_secret !== DEPLOY_SECRET) {
 $repo_dir = __DIR__;
 chdir($repo_dir);
 
-// Commands to run
-$commands = [
-    'git status -s' => 'Checking working tree status',
-    'git fetch origin main 2>&1' => 'Fetching latest commits',
-    'git reset --hard origin/main 2>&1' => 'Syncing with origin/main',
-    'git log -1 --pretty=format:"%h - %an: %s (%cr)"' => 'Latest commit details'
-];
+$commands = [];
+
+// Auto-initialize Git repository if not present
+if (!is_dir($repo_dir . '/.git')) {
+    $commands['git init 2>&1'] = 'Initializing Git repository';
+    $commands['git remote add origin https://github.com/fuad745/teleraptor.git 2>&1'] = 'Setting remote origin';
+    $commands['git fetch origin main 2>&1'] = 'Fetching origin main';
+    $commands['git reset --mixed origin/main 2>&1'] = 'Linking working tree to origin/main';
+}
+
+$commands['git status -s'] = 'Checking working tree status';
+$commands['git fetch origin main 2>&1'] = 'Fetching latest commits';
+$commands['git reset --hard origin/main 2>&1'] = 'Syncing with origin/main';
+$commands['git log -1 --pretty=format:"%h - %an: %s (%cr)"'] = 'Latest commit details';
 
 $output_log = [];
 $start_time = microtime(true);
