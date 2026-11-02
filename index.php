@@ -332,6 +332,12 @@ if ($is_logged_in && isset($_POST['action']) && $_POST['action'] === 'publish_te
 
             <!-- Actions: CI/CD Pull & Logout -->
             <div class="flex items-center gap-2">
+                <button onclick="openVideoModal()" id="watchVideoBtn"
+                        class="text-xs bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-500 hover:to-pink-500 text-white font-bold px-3 py-2 rounded-xl transition flex items-center gap-1.5 shadow-md shadow-rose-600/30"
+                        title="Watch generated 9:16 vertical short video sample">
+                    <span>🎬</span>
+                    <span>Watch 9:16 Short</span>
+                </button>
                 <button onclick="triggerGitDeploy()" id="deployBtn"
                         class="text-xs bg-slate-900 hover:bg-slate-800 border border-cyan-500/30 text-cyan-300 font-semibold px-3 py-2 rounded-xl transition flex items-center gap-1.5"
                         title="Pull latest changes from GitHub repository">
@@ -736,6 +742,32 @@ if ($is_logged_in && isset($_POST['action']) && $_POST['action'] === 'publish_te
             <div class="mt-4 flex justify-end">
                 <button onclick="closeDeployModal()" class="text-xs bg-slate-800 hover:bg-slate-700 text-white font-semibold px-4 py-2 rounded-xl transition">
                     Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 9:16 Video Short Player Modal -->
+    <div id="videoModal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 hidden flex flex-col items-center justify-center p-4">
+        <div class="glass-panel max-w-sm w-full rounded-3xl p-5 shadow-2xl border border-rose-500/30 flex flex-col items-center">
+            <div class="w-full flex justify-between items-center mb-3 border-b border-slate-800 pb-2">
+                <div class="flex items-center gap-2">
+                    <span class="text-xl">🎬</span>
+                    <span class="text-sm font-bold text-white font-display">Viral 9:16 Short Preview</span>
+                </div>
+                <button onclick="closeVideoModal()" class="text-slate-400 hover:text-white font-bold p-1">✕</button>
+            </div>
+            
+            <div class="w-full aspect-[9/16] max-h-[65vh] bg-black rounded-2xl overflow-hidden border border-slate-700/80 shadow-inner flex items-center justify-center">
+                <video id="viralVideoPlayer" src="sample_short.mp4" controls playsinline preload="auto" class="w-full h-full object-contain"></video>
+            </div>
+
+            <div class="w-full mt-4 flex items-center gap-2">
+                <a href="sample_short.mp4" download="teleraptor_viral_short.mp4" class="flex-1 btn-emerald text-white text-xs font-bold py-2.5 rounded-xl flex items-center justify-center gap-1.5 shadow-md shadow-emerald-600/30">
+                    <span>📥</span> Download MP4
+                </a>
+                <button onclick="copyVideoUrl()" class="chip-btn text-xs text-slate-300 font-semibold px-3 py-2.5 rounded-xl flex items-center gap-1">
+                    <span>📋</span> Copy Link
                 </button>
             </div>
         </div>
@@ -1440,6 +1472,27 @@ if ($is_logged_in && isset($_POST['action']) && $_POST['action'] === 'publish_te
 
         function closeDeployModal() {
             document.getElementById('deployModal').classList.add('hidden');
+        }
+
+        function openVideoModal() {
+            const modal = document.getElementById('videoModal');
+            const player = document.getElementById('viralVideoPlayer');
+            modal.classList.remove('hidden');
+            player.play().catch(() => {});
+        }
+
+        function closeVideoModal() {
+            const modal = document.getElementById('videoModal');
+            const player = document.getElementById('viralVideoPlayer');
+            player.pause();
+            modal.classList.add('hidden');
+        }
+
+        function copyVideoUrl() {
+            const url = window.location.origin + '/sample_short.mp4';
+            navigator.clipboard.writeText(url).then(() => {
+                showToast('Video link copied to clipboard!', 'success');
+            });
         }
 
         window.onload = () => {
