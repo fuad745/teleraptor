@@ -753,17 +753,27 @@ if ($is_logged_in && isset($_POST['action']) && $_POST['action'] === 'publish_te
             <div class="w-full flex justify-between items-center mb-3 border-b border-slate-800 pb-2">
                 <div class="flex items-center gap-2">
                     <span class="text-xl">🎬</span>
-                    <span class="text-sm font-bold text-white font-display">Viral 9:16 Short Preview</span>
+                    <span class="text-sm font-bold text-white font-display">Video Style Comparison</span>
                 </div>
                 <button onclick="closeVideoModal()" class="text-slate-400 hover:text-white font-bold p-1">✕</button>
             </div>
+
+            <!-- Style Selector Tabs -->
+            <div class="flex bg-slate-950/90 p-1 rounded-xl border border-slate-800/80 text-[11px] font-semibold gap-1 w-full mb-3">
+                <button onclick="switchVideoStyle('infographic')" id="styleBtn_info" class="flex-1 py-1.5 rounded-lg bg-cyan-600 text-white shadow font-bold transition">
+                    ✨ Style A: Infographic
+                </button>
+                <button onclick="switchVideoStyle('mpt')" id="styleBtn_mpt" class="flex-1 py-1.5 rounded-lg text-slate-400 hover:text-white font-medium transition">
+                    🎬 Style B: MoneyPrinterTurbo
+                </button>
+            </div>
             
-            <div class="w-full aspect-[9/16] max-h-[65vh] bg-black rounded-2xl overflow-hidden border border-slate-700/80 shadow-inner flex items-center justify-center">
+            <div class="w-full aspect-[9/16] max-h-[60vh] bg-black rounded-2xl overflow-hidden border border-slate-700/80 shadow-inner flex items-center justify-center">
                 <video id="viralVideoPlayer" src="sample_short.mp4" controls playsinline preload="auto" class="w-full h-full object-contain"></video>
             </div>
 
             <div class="w-full mt-4 flex items-center gap-2">
-                <a href="sample_short.mp4" download="teleraptor_viral_short.mp4" class="flex-1 btn-emerald text-white text-xs font-bold py-2.5 rounded-xl flex items-center justify-center gap-1.5 shadow-md shadow-emerald-600/30">
+                <a id="videoDownloadLink" href="sample_short.mp4" download="teleraptor_style_a_infographic.mp4" class="flex-1 btn-emerald text-white text-xs font-bold py-2.5 rounded-xl flex items-center justify-center gap-1.5 shadow-md shadow-emerald-600/30">
                     <span>📥</span> Download MP4
                 </a>
                 <button onclick="copyVideoUrl()" class="chip-btn text-xs text-slate-300 font-semibold px-3 py-2.5 rounded-xl flex items-center gap-1">
@@ -1474,6 +1484,8 @@ if ($is_logged_in && isset($_POST['action']) && $_POST['action'] === 'publish_te
             document.getElementById('deployModal').classList.add('hidden');
         }
 
+        let currentVideoStyle = 'infographic';
+
         function openVideoModal() {
             const modal = document.getElementById('videoModal');
             const player = document.getElementById('viralVideoPlayer');
@@ -1488,10 +1500,36 @@ if ($is_logged_in && isset($_POST['action']) && $_POST['action'] === 'publish_te
             modal.classList.add('hidden');
         }
 
+        function switchVideoStyle(style) {
+            currentVideoStyle = style;
+            const player = document.getElementById('viralVideoPlayer');
+            const dlBtn = document.getElementById('videoDownloadLink');
+            const btnInfo = document.getElementById('styleBtn_info');
+            const btnMpt = document.getElementById('styleBtn_mpt');
+            
+            if (style === 'infographic') {
+                player.src = 'sample_short.mp4';
+                dlBtn.href = 'sample_short.mp4';
+                dlBtn.download = 'teleraptor_style_a_infographic.mp4';
+                btnInfo.className = 'flex-1 py-1.5 rounded-lg bg-cyan-600 text-white shadow font-bold transition';
+                btnMpt.className = 'flex-1 py-1.5 rounded-lg text-slate-400 hover:text-white font-medium transition';
+                showToast('Switched to Style A: Infographic Deck', 'info');
+            } else {
+                player.src = 'mpt_style_short.mp4';
+                dlBtn.href = 'mpt_style_short.mp4';
+                dlBtn.download = 'teleraptor_style_b_moneyprinterturbo.mp4';
+                btnMpt.className = 'flex-1 py-1.5 rounded-lg bg-rose-600 text-white shadow font-bold transition';
+                btnInfo.className = 'flex-1 py-1.5 rounded-lg text-slate-400 hover:text-white font-medium transition';
+                showToast('Switched to Style B: MoneyPrinterTurbo Collage', 'info');
+            }
+            player.play().catch(() => {});
+        }
+
         function copyVideoUrl() {
-            const url = window.location.origin + '/sample_short.mp4';
+            const file = currentVideoStyle === 'infographic' ? 'sample_short.mp4' : 'mpt_style_short.mp4';
+            const url = window.location.origin + '/' + file;
             navigator.clipboard.writeText(url).then(() => {
-                showToast('Video link copied to clipboard!', 'success');
+                showToast('Video link copied: ' + file, 'success');
             });
         }
 
